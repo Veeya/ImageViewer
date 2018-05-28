@@ -158,6 +158,9 @@ public enum GalleryConfigurationItem {
 
     ///Tint color of video controls
     case videoControlsColor(UIColor)
+    
+    ///Allows tap anywhere outside the photo in order to close screen
+    case dismissBySingleTap(Bool)
 }
 
 public enum GalleryRotationMode {
