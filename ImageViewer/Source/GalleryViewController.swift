@@ -707,10 +707,10 @@ open class GalleryViewController: UIPageViewController, ItemControllerDelegate {
         self.overlayView.colorView.alpha = 1 - distance
     }
 
-    public func itemControllerDidFinishSwipeToDismissSuccessfully() {
+    public func itemControllerDidFinishSwipeToDismissSuccessfully(_ animated: Bool) {
 
         self.swipedToDismissCompletion?()
         self.overlayView.removeFromSuperview()
-        self.dismiss(animated: false, completion: nil)
+        self.dismiss(animated: animated, completion: nil)
     }
 }

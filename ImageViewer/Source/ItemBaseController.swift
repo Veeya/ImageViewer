@@ -49,6 +49,7 @@ open class ItemBaseController<T: UIView>: UIViewController, ItemController, UIGe
     fileprivate var swipeToDismissMode = GallerySwipeToDismissMode.always
     fileprivate var toggleDecorationViewBySingleTap = true
     fileprivate var activityViewByLongPress = true
+    fileprivate var dismissBySingleTap = false
 
     /// INTERACTIONS
     fileprivate var singleTapRecognizer: UITapGestureRecognizer?
@@ -89,6 +90,7 @@ open class ItemBaseController<T: UIView>: UIViewController, ItemController, UIGe
             case .activityViewByLongPress(let enabled):             activityViewByLongPress = enabled
             case .spinnerColor(let color):                          activityIndicatorView.color = color
             case .spinnerStyle(let style):                          activityIndicatorView.activityIndicatorViewStyle = style
+            case .dismissBySingleTap(let enabled):                  dismissBySingleTap = enabled
 
             case .displacementTransitionStyle(let style):
 
@@ -112,6 +114,10 @@ open class ItemBaseController<T: UIView>: UIViewController, ItemController, UIGe
         configureGestureRecognizers()
 
         activityIndicatorView.hidesWhenStopped = true
+        
+        if dismissBySingleTap && toggleDecorationViewBySingleTap {
+            fatalError("Only one single tap gesture can be present, user either .dismissBySingleTap or .toggleDecorationViewsBySingleTap")
+        }
     }
 
     @available (*, unavailable)
@@ -145,7 +151,7 @@ open class ItemBaseController<T: UIView>: UIViewController, ItemController, UIGe
         doubleTapRecognizer.numberOfTapsRequired = 2
         scrollView.addGestureRecognizer(doubleTapRecognizer)
 
-        if toggleDecorationViewBySingleTap == true {
+        if toggleDecorationViewBySingleTap == true || dismissBySingleTap == true{
 
             let singleTapRecognizer = UITapGestureRecognizer()
 
@@ -265,8 +271,11 @@ open class ItemBaseController<T: UIView>: UIViewController, ItemController, UIGe
     }
 
     @objc func scrollViewDidSingleTap() {
-
-        self.delegate?.itemControllerDidSingleTap(self)
+        if (dismissBySingleTap) {
+            self.delegate?.itemControllerDidFinishSwipeToDismissSuccessfully(true)
+        } else {
+            self.delegate?.itemControllerDidSingleTap(self)
+        }
     }
 
     @objc func scrollViewDidLongPress() {
@@ -358,7 +367,7 @@ open class ItemBaseController<T: UIView>: UIViewController, ItemController, UIGe
 
             UIApplication.applicationWindow.windowLevel = UIWindowLevelNormal
             self?.swipingToDismiss = nil
-            self?.delegate?.itemControllerDidFinishSwipeToDismissSuccessfully()
+            self?.delegate?.itemControllerDidFinishSwipeToDismissSuccessfully(false)
         }
 
         switch (swipeOrientation, index) {
